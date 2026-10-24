@@ -1,0 +1,887 @@
+<title>Arbre d'Al Maktaba</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Amiri:wght@400;700&display=swap">
+<style>
+/* Layout : en-tête Al Maktaba, barre d'outils, puis l'arbre (SVG zoomable) à gauche et le panneau de lecture à droite ; une colonne sur téléphone. Identité reprise du site : papier chaud, vert Al Maktaba, Cormorant + Spectral. Les fils rouges relient les idées entre elles. */
+:root {
+  --paper: #fbfaf5;
+  --paper-2: #f4f1e8;
+  --card: #ffffff;
+  --ink: #1c1b16;
+  --ink-soft: #4b4940;
+  --muted: #77725f;
+  --line: #e6e1d4;
+  --line-2: #d8d2c2;
+  --green: #247818;
+  --green-d: #1a5810;
+  --green-t: #eef3ec;
+  --leaf-ex: #d6cba9;
+  --leaf-ex-line: #a8996f;
+  --red: #c8102e;
+  --bark: #5a4a35;
+  --bark-2: #8a7858;
+  --tint-green: #e3ebdd;
+  --tint-sand: #f0e8d4;
+  --tint-slate: #e2e6e8;
+  --tint-rose: #f2e2dc;
+  --display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --text: "Spectral", Georgia, serif;
+  --ar: "Amiri", "Geeza Pro", "Noto Naskh Arabic", serif;
+  --radius: 3px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #14130f; --paper-2: #1c1b16; --card: #201f19; --ink: #ece8dc; --ink-soft: #cbc5b4; --muted: #9c9684;
+    --line: #2d2b23; --line-2: #3c392e; --green: #72c25f; --green-d: #59a947; --green-t: #1c2918;
+    --leaf-ex: #5a5341; --leaf-ex-line: #8c8263; --red: #ff6f61; --bark: #b9a888; --bark-2: #8d7d61;
+    --tint-green: #213020; --tint-sand: #2d2a1f; --tint-slate: #23292c; --tint-rose: #33251f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #14130f; --paper-2: #1c1b16; --card: #201f19; --ink: #ece8dc; --ink-soft: #cbc5b4; --muted: #9c9684;
+  --line: #2d2b23; --line-2: #3c392e; --green: #72c25f; --green-d: #59a947; --green-t: #1c2918;
+  --leaf-ex: #5a5341; --leaf-ex-line: #8c8263; --red: #ff6f61; --bark: #b9a888; --bark-2: #8d7d61;
+  --tint-green: #213020; --tint-sand: #2d2a1f; --tint-slate: #23292c; --tint-rose: #33251f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--text); font-size: 17px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font-family: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.wrap { max-width: 1440px; margin: 0 auto; }
+
+/* ---------- En-tête ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { width: 26px; height: 32px; flex: none; }
+.brand-name { font-family: var(--display); font-size: 24px; font-weight: 600; line-height: 1; letter-spacing: .01em; }
+.brand-ar { font-family: var(--ar); font-size: 20px; color: var(--green); line-height: 1; }
+.brand-sub { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+.intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 40px; align-items: end; padding-block: 28px 18px; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: var(--green); }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(34px, 5vw, 56px); line-height: 1.04; margin: 6px 0 8px; text-wrap: balance; letter-spacing: -.01em; }
+h1 em { font-style: italic; color: var(--green); font-weight: 500; }
+.lede { margin: 0; max-width: 62ch; color: var(--ink-soft); font-size: 18px; }
+.counts { display: flex; gap: 22px; color: var(--muted); font-size: 14px; }
+.counts b { display: block; font-family: var(--display); font-size: 30px; font-weight: 600; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* ---------- Barre d'outils ---------- */
+.tools { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding-block: 10px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.search { position: relative; flex: 1 1 240px; max-width: 360px; }
+.search input { width: 100%; font: inherit; font-size: 16px; padding: 8px 12px 8px 34px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--card); color: var(--ink); }
+.search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); fill: none; stroke-width: 1.8; }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--radius); overflow: hidden; background: var(--card); }
+.seg button { border: 0; background: none; padding: 7px 12px; font-size: 14px; color: var(--ink-soft); border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--green); color: var(--paper); }
+.check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: var(--ink-soft); }
+.check input { accent-color: var(--green); width: 16px; height: 16px; }
+.btn { border: 1px solid var(--line-2); background: var(--card); padding: 7px 12px; border-radius: var(--radius); font-size: 14px; }
+.btn:hover { border-color: var(--green); }
+.spacer { flex: 1; }
+.status-line { font-size: 14px; color: var(--muted); min-height: 1.4em; }
+
+/* ---------- Scène ---------- */
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 0; border-bottom: 1px solid var(--line); }
+.tree-wrap { position: relative; min-width: 0; border-right: 1px solid var(--line); }
+#tree { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 940; touch-action: manipulation; }
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 13px; color: var(--muted); background: var(--paper); padding: 2px 6px; border-radius: var(--radius); pointer-events: none; }
+.zoom-out { position: absolute; right: 12px; top: 12px; }
+.zoom-out[hidden] { display: none; }
+
+/* SVG */
+.bark-fill { fill: var(--bark); }
+.branch { fill: none; stroke: var(--bark); stroke-linecap: round; }
+.twig { fill: none; stroke: var(--bark-2); stroke-width: 1.4; stroke-linecap: round; }
+.ground { stroke: var(--line-2); stroke-width: 1.2; fill: none; }
+.root { fill: none; stroke: var(--bark-2); stroke-linecap: round; cursor: pointer; transition: stroke .2s, opacity .2s; }
+.root-hit { fill: none; stroke: transparent; stroke-width: 30; cursor: pointer; }
+.root-g.on .root { stroke: var(--green); }
+.root-g.faded { opacity: .45; }
+.root-label { font-family: var(--text); font-size: 15px; fill: var(--ink-soft); cursor: pointer; }
+.root-g.on .root-label { fill: var(--green); font-weight: 600; }
+.trunk-text { font-family: var(--text); font-size: 10px; letter-spacing: .2em; fill: var(--paper); text-transform: uppercase; pointer-events: none; }
+.base-ar { font-family: var(--ar); font-size: 22px; fill: var(--green); }
+.axis-label { font-family: var(--display); font-style: italic; font-weight: 600; font-size: 36px; fill: var(--ink); cursor: pointer; paint-order: stroke; stroke: var(--paper); stroke-width: .18em; stroke-linejoin: round; }
+.axis-label:hover { fill: var(--green); }
+.idea-node circle.core { fill: var(--paper); stroke: var(--bark); stroke-width: 2.4; }
+.idea-node.bud circle.core { stroke-dasharray: 3 3; stroke: var(--green); }
+.idea-node circle.hit { fill: transparent; }
+.idea-node { cursor: pointer; transition: opacity .25s; }
+.idea-node:hover circle.core, .idea-node.sel circle.core { fill: var(--green); stroke: var(--green); }
+.idea-label { font-family: var(--display); font-weight: 600; font-size: 17px; fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: .3em; stroke-linejoin: round; pointer-events: none; }
+.idea-label.sel { fill: var(--green); }
+.idea-label.dim { opacity: .25; }
+svg.tiny .idea-label { display: none; }
+.leaf { cursor: pointer; transition: opacity .25s; }
+.leaf .blade { stroke-width: 1.2; transition: transform .2s; transform-box: fill-box; transform-origin: 0% 50%; }
+.leaf.fonds .blade { fill: var(--green); stroke: var(--green-d); }
+.leaf.suggestion .blade { fill: var(--paper); stroke: var(--green); stroke-width: 1.8; }
+.leaf.exemple .blade { fill: var(--leaf-ex); stroke: var(--leaf-ex-line); stroke-dasharray: 3 2; }
+.leaf .rib { stroke: var(--paper); stroke-width: .9; opacity: .7; pointer-events: none; }
+.leaf.suggestion .rib, .leaf.exemple .rib { stroke: var(--green); opacity: .5; }
+.leaf .hit { fill: transparent; }
+.leaf:hover .blade, .leaf:focus-visible .blade, .leaf.sel .blade { transform: scale(1.28); }
+.leaf.sel .blade { stroke: var(--red); stroke-width: 2; }
+.leaf.match .blade { stroke: var(--red); stroke-width: 2.2; }
+.dim { opacity: .18; }
+.filtered { opacity: .07; pointer-events: none; }
+.thread { fill: none; stroke: var(--red); stroke-width: 1.6; stroke-dasharray: 5 4; pointer-events: none; }
+.thread-dot { fill: var(--red); pointer-events: none; }
+
+/* Pousse de l'arbre */
+@media (prefers-reduced-motion: no-preference) {
+  .grow { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .9s cubic-bezier(.3,.6,.3,1) forwards; }
+  .fade { opacity: 0; animation: fade .6s ease forwards; }
+  .leaf .blade.pop { transform: scale(0); animation: pop .45s cubic-bezier(.3,1.5,.5,1) forwards; }
+  .thread { animation: march 1.4s linear infinite; }
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fade { to { opacity: 1; } }
+@keyframes pop { to { transform: scale(1); } }
+@keyframes march { to { stroke-dashoffset: -18; } }
+
+.tip { position: fixed; z-index: 20; max-width: 260px; background: var(--ink); color: var(--paper); padding: 6px 10px; border-radius: var(--radius); font-size: 13px; line-height: 1.35; pointer-events: none; }
+.tip b { display: block; font-family: var(--display); font-size: 16px; font-weight: 600; }
+
+/* ---------- Panneau ---------- */
+.panel { min-width: 0; padding: 22px 0 28px 24px; }
+.panel h2 { font-family: var(--display); font-weight: 600; font-size: 30px; line-height: 1.08; margin: 4px 0 10px; text-wrap: balance; }
+.panel h3 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 22px 0 8px; }
+.panel p { margin: 0 0 12px; }
+.panel .small { font-size: 14px; color: var(--muted); }
+.back { border: 0; background: none; padding: 0; font-size: 14px; color: var(--green); margin-bottom: 12px; }
+.back:hover { text-decoration: underline; }
+.thinkers { font-size: 14px; color: var(--ink-soft); border-left: 2px solid var(--green); padding-left: 10px; margin: 0 0 14px; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.rlist button { width: 100%; text-align: left; border: 0; background: none; padding: 8px 6px; border-radius: var(--radius); display: grid; grid-template-columns: 18px minmax(0,1fr); gap: 10px; align-items: start; }
+.rlist button:hover { background: var(--paper-2); }
+.rlist .t { font-weight: 500; line-height: 1.3; display: block; }
+.rlist .m { font-size: 13px; color: var(--muted); display: block; }
+.glyph { width: 18px; height: 12px; margin-top: 5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line-2); background: var(--card); border-radius: 999px; padding: 3px 11px; font-size: 13px; }
+.chip:hover { border-color: var(--green); color: var(--green); }
+.chip.thread-chip { border-color: var(--red); }
+.legend { display: grid; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 14px; color: var(--ink-soft); }
+.legend li { display: grid; grid-template-columns: 26px minmax(0,1fr); gap: 10px; align-items: center; }
+.cover { aspect-ratio: 16 / 9; max-width: 100%; border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 14px; }
+.cover .ct { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.1; text-wrap: balance; }
+.cover .ca { font-size: 13px; color: var(--ink-soft); }
+.tint-green { background: var(--tint-green); } .tint-sand { background: var(--tint-sand); } .tint-slate { background: var(--tint-slate); } .tint-rose { background: var(--tint-rose); }
+.meta { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 4px 14px; font-size: 14px; margin: 0 0 14px; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; }
+.badge { display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: var(--radius); font-weight: 600; }
+.badge.fonds { background: var(--green-t); color: var(--green); }
+.badge.suggestion { border: 1px solid var(--green); color: var(--green); }
+.badge.exemple { background: var(--tint-sand); color: var(--ink-soft); }
+.go { display: inline-flex; gap: 6px; align-items: center; color: var(--green); font-weight: 500; text-decoration: none; border-bottom: 1px solid currentColor; }
+.bud-box { border: 1px dashed var(--green); border-radius: var(--radius); padding: 12px 14px; margin: 12px 0; background: var(--green-t); font-size: 15px; }
+.axis-ideas { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+.axis-ideas button { width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: none; padding: 9px 2px; display: flex; justify-content: space-between; gap: 12px; font-size: 16px; }
+.axis-ideas button:hover { color: var(--green); }
+.axis-ideas span:last-child { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Vue liste ---------- */
+.list-view { padding-block: 10px 30px; }
+.list-axis { padding-block: 18px; border-bottom: 1px solid var(--line); }
+.list-axis > h2 { font-family: var(--display); font-style: italic; font-weight: 600; font-size: 32px; margin: 0 0 4px; }
+.list-axis > p { margin: 0 0 12px; color: var(--ink-soft); max-width: 65ch; }
+.list-ideas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px 28px; }
+.list-idea h3 { font-family: var(--display); font-weight: 600; font-size: 21px; margin: 0 0 4px; }
+.list-idea h3 button { border: 0; background: none; padding: 0; font: inherit; text-align: left; }
+.list-idea h3 button:hover { color: var(--green); }
+
+.foot { padding-block: 18px 34px; font-size: 14px; color: var(--muted); max-width: 80ch; }
+
+@media (max-width: 980px) {
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .tree-wrap { border-right: 0; border-bottom: 1px solid var(--line); }
+  .panel { padding: 20px 0 26px; }
+  .intro { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 560px) {
+  .brand-sub { display: none; }
+  .counts { gap: 16px; }
+  .counts b { font-size: 24px; }
+  .search { max-width: none; flex-basis: 100%; }
+}
+</style>
+
+<header class="wrap top">
+  <div class="brand">
+    <svg viewBox="48 0 144 270" aria-hidden="true"><g fill="var(--green)"><circle cx="120" cy="9" r="5.5"/><rect x="116" y="11" width="8" height="14"/><path d="M78,98 L78,70 C78,38 96,24 120,24 C144,24 162,38 162,70 L162,98 Z"/><rect x="48" y="104" width="42" height="46"/><rect x="96" y="98" width="48" height="52"/><rect x="150" y="104" width="42" height="46"/><rect x="96" y="150" width="48" height="120"/></g></svg>
+    <span class="brand-name">Al Maktaba</span>
+    <span class="brand-ar" lang="ar">المكتبة</span>
+  </div>
+  <span class="brand-sub">une initiative d'Al Maydan</span>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <div>
+      <div class="eyebrow">L'arbre de la bibliothèque</div>
+      <h1>Explorer les ressources <em>par les idées</em></h1>
+      <p class="lede">Trois branches maîtresses, une par axe d'Al Maydan. Sur chaque branche, les grandes idées ; sur chaque idée, les ressources qui la nourrissent. Les fils rouges montrent ce qui relie une ressource à d'autres idées.</p>
+    </div>
+    <div class="counts" id="counts"></div>
+  </section>
+
+  <div class="tools" role="toolbar" aria-label="Outils de l'arbre">
+    <label class="search" for="q">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Chercher un titre, un auteur, une idée" autocomplete="off">
+    </label>
+    <div class="seg" id="fam" aria-label="Famille de ressources">
+      <button type="button" data-f="all" aria-pressed="true">Toutes</button>
+      <button type="button" data-f="lire" aria-pressed="false">Lire</button>
+      <button type="button" data-f="voir" aria-pressed="false">Regarder, écouter</button>
+      <button type="button" data-f="rencontrer" aria-pressed="false">Rencontrer</button>
+    </div>
+    <label class="check" for="ex"><input id="ex" type="checkbox" checked> Exemples fictifs</label>
+    <span class="spacer"></span>
+    <div class="seg" id="viewseg" aria-label="Affichage">
+      <button type="button" data-v="tree" aria-pressed="true">Arbre</button>
+      <button type="button" data-v="list" aria-pressed="false">Liste</button>
+    </div>
+  </div>
+  <div class="status-line" id="status" aria-live="polite"></div>
+
+  <section class="stage" id="stage">
+    <div class="tree-wrap" id="treeWrap">
+      <svg id="tree" viewBox="0 0 1200 940" role="group" aria-label="Arbre des ressources d'Al Maktaba"></svg>
+      <button class="btn zoom-out" id="zoomOut" type="button" hidden>Vue d'ensemble</button>
+      <span class="hint" id="hint">Cliquez une branche pour vous en approcher</span>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </section>
+
+  <section class="list-view" id="listView" hidden></section>
+
+  <p class="foot">Prototype. Les ressources « dans le fonds » viennent du catalogue d'Al Maktaba ; les « suggestions à relire » ont été ajoutées pour nourrir l'arbre et attendent la relecture de l'équipe ; les « exemples fictifs » illustrent des types de ressources et ne renvoient vers rien de réel.</p>
+</main>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ================= Données ================= */
+const AXES = [
+  { id: "spirituelle", name: "Spirituelle", hub: [330, 470], c1: [555, 590], c2: [420, 520],
+    angles: [-215, -178, -142, -105], label: [452, 660], anchor: "middle",
+    desc: "Faire place à la quête de sens, à l'intériorité et à ce qui élève l'âme, loin du bruit du quotidien." },
+  { id: "intellectuelle", name: "Intellectuelle", hub: [600, 360], c1: [600, 560], c2: [600, 440],
+    angles: [-170, -130, -90, -50, -10], label: [588, 482], anchor: "end",
+    desc: "Cultiver la pensée, le doute fécond et la rigueur : apprendre à lire le monde et à le comprendre." },
+  { id: "culturelle", name: "Culturelle", hub: [870, 470], c1: [645, 590], c2: [780, 520],
+    angles: [-75, -38, -2, 35], label: [748, 660], anchor: "middle",
+    desc: "Transmettre un héritage vivant : lettres, arts, histoire et mémoire, comme socle d'une identité ouverte." }
+];
+
+const IDEAS = [
+  // Spirituelle (ordre = position sur la branche, du bas vers le haut)
+  { id: "soin", axis: "spirituelle", name: "Le soin, le corps et le sacré", lines: ["Le soin, le corps", "et le sacré"],
+    who: "Ivan Illich ; Jean Baubérot et Raphaël Liogier",
+    desc: "La médecine moderne soigne, mais elle porte aussi des promesses et des croyances. Ces ressources interrogent ce qu'on attend d'elle, ses limites, et la part intime de la guérison." },
+  { id: "origines", axis: "spirituelle", name: "Raconter les origines", lines: ["Raconter", "les origines"],
+    who: "Moustapha Akkad",
+    desc: "Comment mettre en récit les débuts d'une tradition sans la trahir ? Le Message en donne un exemple : le film retrace les débuts de l'islam sans jamais montrer le Prophète à l'écran." },
+  { id: "doute", axis: "spirituelle", name: "Le doute et la certitude", lines: ["Le doute et", "la certitude"],
+    who: "al-Ghazali",
+    desc: "Dans Erreur et délivrance, al-Ghazali raconte une crise de doute qui l'a mené à examiner la théologie, la philosophie et l'enseignement ésotérique, avant de trouver dans le soufisme une certitude vécue plutôt que démontrée." },
+  { id: "ijtihad", axis: "spirituelle", name: "Renouveler la pensée religieuse", lines: ["Renouveler la", "pensée religieuse"],
+    who: "Muhammad Iqbal, Fazlur Rahman",
+    desc: "Pour Muhammad Iqbal, l'effort d'interprétation (ijtihad) est ce qui garde une tradition vivante : chaque génération doit repenser ses principes avec les savoirs de son temps, plutôt que répéter les réponses héritées." },
+  // Intellectuelle
+  { id: "orientalisme", axis: "intellectuelle", name: "L'Orientalisme", lines: ["L'Orientalisme"],
+    who: "Edward Saïd",
+    desc: "Edward Saïd montre comment l'Occident a fabriqué une image de « l'Orient » à travers ses savants, ses écrivains et ses administrations, et comment ce savoir a accompagné la domination." },
+  { id: "colonisabilite", axis: "intellectuelle", name: "La colonisabilité", lines: ["La colonisabilité"],
+    who: "Malek Bennabi, Frantz Fanon",
+    desc: "Malek Bennabi distingue la colonisation, venue de l'extérieur, de la colonisabilité : les faiblesses internes qui rendent une société dominable. Pour lui, la renaissance commence par l'homme, avec le sol et le temps, qu'une idée religieuse met en mouvement." },
+  { id: "asabiyya", axis: "intellectuelle", name: "ʿAsabiyya et cycles des civilisations", lines: ["ʿAsabiyya et cycles", "des civilisations"],
+    who: "Ibn Khaldoun",
+    desc: "Ibn Khaldoun appelle ʿasabiyya la cohésion qui unit un groupe et lui permet de fonder un pouvoir. Avec la sédentarité et le confort, elle s'émousse et la dynastie décline en quelques générations : l'histoire devient l'étude de ces cycles." },
+  { id: "raison", axis: "intellectuelle", name: "Raison et révélation", lines: ["Raison et", "révélation"],
+    who: "Ibn Tufayl, al-Ghazali, Muhammad Iqbal",
+    desc: "La raison seule peut-elle atteindre ce que la révélation enseigne ? Ibn Tufayl imagine un enfant grandi seul sur une île qui y parvient par l'observation ; al-Ghazali, lui, marque les limites de la philosophie." },
+  { id: "chimie", axis: "intellectuelle", name: "La chimie réticulaire", lines: ["La chimie", "réticulaire"],
+    who: "Omar Yaghi, Susumu Kitagawa, Richard Robson",
+    desc: "Assembler des briques moléculaires en charpentes ordonnées et poreuses : ce sont les réseaux métallo-organiques (MOF), capables de piéger du gaz carbonique ou de tirer de l'eau de l'air du désert. Prix Nobel de chimie 2025." },
+  // Culturelle
+  { id: "appartenances", axis: "culturelle", name: "Appartenances", lines: ["Appartenances"],
+    who: "Sarah Aïter, Hugues Lagrange",
+    desc: "Comment les héritages culturels et religieux se transmettent-ils et se transforment-ils dans la société française ? Des enquêtes et des entretiens pour sortir des caricatures." },
+  { id: "transmettre", axis: "culturelle", name: "Transmettre", lines: ["Transmettre"],
+    who: "Paulo Freire",
+    desc: "Éduquer, ce n'est pas seulement déposer des connaissances. Paulo Freire oppose à cette éducation « bancaire » un dialogue où l'on apprend ensemble à lire le monde." },
+  { id: "commun", axis: "culturelle", name: "Le commun", lines: ["Le commun"],
+    who: "Elinor Ostrom",
+    desc: "Une bibliothèque, un jardin, une forêt : une ressource partagée peut être gérée par ceux qui l'utilisent, sans être vendue ni confiée à l'État. Elinor Ostrom en a étudié les règles ; la ville en offre mille exemples." },
+  { id: "memoire", axis: "culturelle", name: "Mémoire et héritage", lines: ["Mémoire et", "héritage"], bud: true,
+    who: "",
+    desc: "Histoire, patrimoine, archives, langues : ce rameau attend ses premières ressources. Plusieurs ressources d'autres branches s'y rattachent déjà par un fil rouge." }
+];
+
+// statut : fonds (catalogue Al Maktaba) / suggestion (ajoutée pour l'arbre, à relire) / exemple (fictif)
+const RES = [
+  { id: "physician-heal-thyself", title: "Physician, Heal Thyself", type: "Documentaire", author: "", year: "2024", lang: "Anglais", duration: "1 h 19", idea: "soin", also: [], status: "fonds",
+    url: "https://www.imdb.com/title/tt28487207/", source: "imdb.com",
+    desc: "Le parcours intime d'un médecin reconnu, de sa jeunesse rebelle à sa stature de guérisseur : une méditation sur le trauma, l'ego et l'acceptation de soi." },
+  { id: "sacree-medecine", title: "Sacrée médecine : histoire et devenir d'un sanctuaire de la Raison", type: "Livre", author: "Jean Baubérot, Raphaël Liogier", year: "2010", lang: "Français", idea: "soin", also: ["raison"], status: "fonds",
+    url: "https://www.cultura.com/", source: "cultura.com",
+    desc: "Deux sociologues interrogent la place sacralisée de la médecine moderne dans les sociétés sécularisées : un regard critique sur le scientisme contemporain." },
+  { id: "nemesis-medicale", title: "Némésis médicale", type: "Livre", author: "Ivan Illich", year: "1975", lang: "Français", idea: "soin", also: ["commun"], status: "suggestion",
+    desc: "Une critique de la médicalisation de la vie : passé un certain seuil, l'institution médicale peut produire de nouveaux maux et retirer aux personnes leur capacité à prendre soin d'elles-mêmes." },
+  { id: "le-message", title: "Le Message (Ar-Risala)", type: "Film", author: "Moustapha Akkad", year: "1976", lang: "Arabe / Anglais", duration: "2 h 57", idea: "origines", also: ["memoire"], status: "fonds",
+    url: "https://www.imdb.com/title/tt0074896/", source: "imdb.com",
+    desc: "Fresque historique sur les débuts de l'islam au VIIᵉ siècle, tournée en deux versions, arabe et anglaise, avec un soin documentaire qui en a fait une référence." },
+  { id: "erreur-et-delivrance", title: "Erreur et délivrance (al-Munqidh min al-ḍalāl)", type: "Livre", author: "al-Ghazali", year: "vers 1100", lang: "Arabe, traductions françaises", idea: "doute", also: ["raison"], status: "suggestion",
+    desc: "Récit d'une crise de doute : al-Ghazali examine la théologie, la philosophie et l'enseignement ésotérique avant de trouver dans le soufisme une certitude vécue." },
+  { id: "iqbal-reconstruction", title: "Reconstruire la pensée religieuse de l'islam", type: "Livre", author: "Muhammad Iqbal", year: "1934", lang: "Français", idea: "ijtihad", also: ["raison"], status: "fonds",
+    url: "https://www.editionsducerf.fr/", source: "editionsducerf.fr",
+    desc: "Six conférences où le poète-philosophe repense l'expérience religieuse à la lumière de la philosophie et des sciences modernes." },
+  { id: "islam-and-modernity", title: "Islam and Modernity", type: "Livre", author: "Fazlur Rahman", year: "1982", lang: "Anglais", idea: "ijtihad", also: ["transmettre"], status: "suggestion",
+    desc: "Le penseur pakistanais retrace l'histoire de l'enseignement islamique et propose une lecture du Coran attentive au contexte de la révélation, pour en dégager des principes applicables aujourd'hui." },
+  { id: "orientalisme-said", title: "L'Orientalisme : l'Orient créé par l'Occident", type: "Livre", author: "Edward W. Saïd", year: "1978", lang: "Français", idea: "orientalisme", also: ["appartenances", "memoire"], status: "fonds",
+    url: "https://www.seuil.com/", source: "seuil.com",
+    desc: "Essai fondateur des études postcoloniales : comment l'Occident a construit, représenté et dominé « l'Orient » comme objet de savoir et de pouvoir." },
+  { id: "malek-bennabi", title: "Malek Bennabi, penseur de la civilisation", type: "Personnalité", author: "", year: "1905-1973", lang: "Français", idea: "colonisabilite", also: ["asabiyya"], status: "fonds",
+    url: "https://fr.wikipedia.org/wiki/Malek_Bennabi", source: "wikipedia.org",
+    desc: "Penseur algérien des conditions de la renaissance des sociétés ; sa notion de colonisabilité et son analyse du fait civilisationnel restent d'actualité." },
+  { id: "conditions-renaissance", title: "Les Conditions de la renaissance", type: "Livre", author: "Malek Bennabi", year: "1949", lang: "Français", idea: "colonisabilite", also: [], status: "suggestion",
+    desc: "L'ouvrage où Bennabi expose la notion de colonisabilité et sa formule de la civilisation : l'homme, le sol et le temps, mis en mouvement par une idée religieuse." },
+  { id: "damnes-de-la-terre", title: "Les Damnés de la terre", type: "Livre", author: "Frantz Fanon", year: "1961", lang: "Français", idea: "colonisabilite", also: ["orientalisme"], status: "suggestion",
+    desc: "Psychiatre engagé dans la guerre d'indépendance algérienne, Fanon analyse la violence coloniale, ses effets sur les esprits et les pièges qui guettent les indépendances." },
+  { id: "muqaddima", title: "Muqaddima (Les Prolégomènes)", type: "Livre", author: "Ibn Khaldoun", year: "1377", lang: "Français", idea: "asabiyya", also: ["memoire"], status: "fonds",
+    url: "https://gallica.bnf.fr/", source: "gallica.bnf.fr",
+    desc: "Œuvre matricielle de la sociologie et de la philosophie de l'histoire, où Ibn Khaldoun forge la notion d'ʿasabiyya et observe la naissance et le déclin des civilisations." },
+  { id: "quest-ce-que-civilisation", title: "Qu'est-ce que la civilisation ?", type: "Vidéo", author: "Conférences Al Maydan", year: "2025", lang: "Français", duration: "48 min", idea: "asabiyya", also: ["colonisabilite"], status: "exemple",
+    desc: "Conférence d'introduction : un parcours des grandes définitions de la civilisation, d'Ibn Khaldoun à nos contemporains." },
+  { id: "hayy-ibn-yaqzan", title: "Hayy ibn Yaqzan", type: "Livre", author: "Ibn Tufayl", year: "XIIᵉ siècle", lang: "Arabe, traductions françaises", idea: "raison", also: ["doute"], status: "suggestion",
+    desc: "Un enfant grandit seul sur une île et parvient, par l'observation et la réflexion, à une connaissance de Dieu qui rejoint celle de la religion révélée." },
+  { id: "omar-yaghi", title: "Omar M. Yaghi, prix Nobel de chimie 2025", type: "Personnalité", author: "", year: "2025", lang: "Anglais", idea: "chimie", also: [], status: "fonds",
+    url: "https://en.wikipedia.org/wiki/Omar_M._Yaghi", source: "wikipedia.org",
+    desc: "Chimiste né en 1965, connu pour le développement des réseaux métallo-organiques (MOF), récompensés par le prix Nobel de chimie 2025." },
+  { id: "sarah-aiter", title: "Sarah Aïter : de l'islam de France au « burn-out salafi »", type: "Vidéo", author: "Mizane TV", year: "2025", lang: "Français", duration: "2 h 13", idea: "appartenances", also: ["ijtihad"], status: "fonds",
+    url: "https://www.youtube.com/watch?v=i7cC0xHSmE8", source: "youtube.com",
+    desc: "Entretien avec une enseignante et doctorante qui travaille sur les intellectuels musulmans en France : islam de France, réaffiliation religieuse, radicalisation et transmission." },
+  { id: "deni-des-cultures", title: "Le Déni des cultures", type: "Livre", author: "Hugues Lagrange", year: "2010", lang: "Français", idea: "appartenances", also: [], status: "fonds",
+    url: "https://www.seuil.com/", source: "seuil.com",
+    desc: "Enquête sociologique sur la place de la culture d'origine dans les trajectoires d'intégration." },
+  { id: "pedagogie-des-opprimes", title: "Pédagogie des opprimés", type: "Livre", author: "Paulo Freire", year: "1968", lang: "Français", idea: "transmettre", also: ["commun"], status: "suggestion",
+    desc: "Le pédagogue brésilien oppose à l'éducation qui dépose des savoirs dans les élèves une éducation par le dialogue, où l'on apprend à lire le monde pour le transformer." },
+  { id: "transmettre-education", title: "Transmettre : l'éducation comme élévation", type: "Article", author: "Revue Al Maydan", year: "2026", lang: "Français", duration: "9 min de lecture", idea: "transmettre", also: ["ijtihad"], status: "exemple",
+    desc: "Petit traité sur la transmission, du maître à l'élève et d'une génération à l'autre." },
+  { id: "les-veilleurs", title: "Les Veilleurs, le podcast", type: "Podcast", author: "Al Maydan", year: "2026", lang: "Français", duration: "~45 min par épisode", idea: "transmettre", also: ["doute"], status: "exemple",
+    desc: "Chaque mois, un long entretien avec des penseurs, des artisans, des éducateurs, des bénévoles." },
+  { id: "ateliers-du-savoir", title: "Les Ateliers du Savoir", type: "Association", author: "", year: "2019", lang: "Français", idea: "transmettre", also: [], status: "exemple",
+    desc: "Association d'éducation populaire : tutorat, cercles de lecture et ateliers d'écriture dans les quartiers." },
+  { id: "nuit-de-la-lecture", title: "Nuit de la lecture", type: "Événement", author: "", year: "2026", lang: "Français", idea: "transmettre", also: ["commun"], status: "exemple",
+    desc: "Une veillée autour du livre : lectures à voix haute, échanges et découvertes, ouverte à toutes et tous." },
+  { id: "gouvernance-biens-communs", title: "La Gouvernance des biens communs", type: "Livre", author: "Elinor Ostrom", year: "1990", lang: "Français (trad. 2010)", idea: "commun", also: [], status: "suggestion",
+    desc: "À partir de pêcheries, de forêts et de réseaux d'irrigation, Ostrom montre que des communautés peuvent gérer durablement une ressource partagée. Prix Nobel d'économie 2009." },
+  { id: "cite-espace-commun", title: "La cité, espace du commun", type: "Article", author: "Revue Al Maydan", year: "2026", lang: "Français", duration: "12 min de lecture", idea: "commun", also: [], status: "exemple",
+    desc: "Comment l'espace partagé de la ville façonne-t-il les liens, les solidarités et la vie de l'esprit ?" },
+  { id: "bibliotheques-de-quartier", title: "Bibliothèques de quartier", type: "Initiative", author: "", year: "2024", lang: "Français", idea: "commun", also: ["transmettre"], status: "exemple",
+    desc: "Des micro-bibliothèques en libre accès dans les halls, les commerces et les lieux de culte, pour rapprocher le livre du quotidien." },
+  { id: "rencontres-al-maydan", title: "Rencontres d'Al Maydan", type: "Événement", author: "", year: "2026", lang: "Français", idea: "commun", also: ["doute"], status: "exemple",
+    desc: "Une journée de conférences, de lectures et de rencontres autour de l'élévation spirituelle, culturelle et intellectuelle." }
+];
+
+const FAMILY = { Livre: "lire", Article: "lire", Documentaire: "voir", Film: "voir", "Vidéo": "voir", Podcast: "voir",
+  "Personnalité": "rencontrer", Association: "rencontrer", Initiative: "rencontrer", "Événement": "rencontrer" };
+const FAMILY_NAME = { lire: "Lire", voir: "Regarder, écouter", rencontrer: "Rencontrer" };
+const TINT = { Livre: "green", Article: "sand", Documentaire: "slate", Film: "slate", "Vidéo": "slate", Podcast: "sand",
+  "Personnalité": "rose", Association: "green", Initiative: "green", "Événement": "rose" };
+const STATUS = { fonds: "Dans le fonds", suggestion: "Suggestion à relire", exemple: "Exemple fictif" };
+
+const axisById = Object.fromEntries(AXES.map(a => [a.id, a]));
+const ideaById = Object.fromEntries(IDEAS.map(i => [i.id, i]));
+const resById = Object.fromEntries(RES.map(r => [r.id, r]));
+
+/* ================= Géométrie ================= */
+const W = 1200, H = 940, FORK = [600, 650];
+const rad = d => d * Math.PI / 180;
+const at = (p, ang, d) => [p[0] + d * Math.cos(rad(ang)), p[1] + d * Math.sin(rad(ang))];
+
+AXES.forEach(ax => {
+  const ideas = IDEAS.filter(i => i.axis === ax.id);
+  ideas.forEach((idea, k) => {
+    idea.ang = ax.angles[k];
+    idea.dist = ax.id === "intellectuelle" ? (k % 2 ? 225 : 200) : (k % 2 ? 190 : 165);
+    idea.pos = at(ax.hub, idea.ang, idea.dist);
+  });
+});
+IDEAS.forEach(idea => {
+  const rs = RES.filter(r => r.idea === idea.id);
+  const n = rs.length, step = n > 3 ? 32 : 40;
+  rs.forEach((r, k) => {
+    const off = (k - (n - 1) / 2) * step;
+    r.ang = idea.ang + off;
+    r.base = at(idea.pos, r.ang, k % 2 ? 78 : 58);
+    r.tip = at(r.base, r.ang, 30);
+    r.mid = at(r.base, r.ang, 15);
+  });
+});
+
+/* ================= Rendu SVG ================= */
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("tree");
+function mk(tag, attrs, parent, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const P = p => p[0].toFixed(1) + "," + p[1].toFixed(1);
+
+function build() {
+  svg.innerHTML = "";
+  const gGround = mk("g", {}, svg);
+  const gRoots = mk("g", {}, svg);
+  const gWood = mk("g", {}, svg);
+  const gTwigs = mk("g", {}, svg);
+  const gThreads = mk("g", { id: "threads" }, svg);
+  const gLeaves = mk("g", {}, svg);
+  const gIdeas = mk("g", {}, svg);
+  const gLabels = mk("g", {}, svg);
+
+  mk("path", { class: "ground", d: "M360,830 C480,824 720,824 840,830" }, gGround);
+
+  // Racines = familles de ressources (filtres)
+  const roots = [
+    { f: "lire", d: "M592,830 C570,858 520,874 455,888", lab: [445, 894], anchor: "end" },
+    { f: "voir", d: "M600,830 C602,860 598,882 600,904", lab: [600, 928], anchor: "middle" },
+    { f: "rencontrer", d: "M608,830 C630,858 680,874 745,888", lab: [755, 894], anchor: "start" }
+  ];
+  roots.forEach((r, i) => {
+    const g = mk("g", { class: "root-g", "data-f": r.f, tabindex: 0, role: "button", "aria-label": "Filtrer : " + FAMILY_NAME[r.f] }, gRoots);
+    mk("path", { class: "root-hit", d: r.d }, g);
+    mk("path", { class: "root grow", d: r.d, pathLength: 1, "stroke-width": 6, style: `animation-delay:${.05 + i * .05}s` }, g);
+    mk("text", { class: "root-label fade", x: r.lab[0], y: r.lab[1], "text-anchor": r.anchor, style: "animation-delay:.9s" }, g, FAMILY_NAME[r.f]);
+    g.addEventListener("click", () => setFamily(state.family === r.f ? "all" : r.f));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFamily(state.family === r.f ? "all" : r.f); } });
+  });
+
+  // Tronc (forme effilée)
+  mk("path", { class: "bark-fill fade", d: "M581,834 C587,760 589,690 590,642 L610,642 C611,690 613,760 619,834 Z" }, gWood);
+  mk("text", { class: "trunk-text fade", transform: "translate(604,822) rotate(-90)", textLength: 148, lengthAdjust: "spacingAndGlyphs", style: "animation-delay:.4s" }, gWood, "Pour une élévation");
+  mk("text", { class: "base-ar fade", x: 634, y: 822, "text-anchor": "start", lang: "ar", style: "animation-delay:.8s" }, gWood, "المكتبة");
+
+  // Branches maîtresses
+  AXES.forEach((ax, i) => {
+    mk("path", { class: "branch grow", pathLength: 1, "stroke-width": 13, style: `animation-delay:${.25 + i * .08}s`,
+      d: `M${P(FORK)} C${P(ax.c1)} ${P(ax.c2)} ${P(ax.hub)}` }, gWood);
+    const t = mk("text", { class: "axis-label fade", x: ax.label[0], y: ax.label[1], "text-anchor": ax.anchor, tabindex: 0, role: "button",
+      "aria-label": "Branche " + ax.name, style: `animation-delay:${.7 + i * .08}s` }, gLabels, ax.name);
+    t.addEventListener("click", () => select({ kind: "axis", id: ax.id }));
+    t.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select({ kind: "axis", id: ax.id }); } });
+  });
+
+  // Rameaux des idées
+  IDEAS.forEach((idea, k) => {
+    const ax = axisById[idea.axis];
+    const mid = at(ax.hub, idea.ang - 14, idea.dist * .55);
+    mk("path", { class: "branch grow", pathLength: 1, "stroke-width": idea.bud ? 3 : 5, style: `animation-delay:${.6 + k * .03}s`,
+      d: `M${P(ax.hub)} Q${P(mid)} ${P(idea.pos)}` }, gWood);
+  });
+
+  // Feuilles
+  RES.forEach((r, k) => {
+    const idea = ideaById[r.idea];
+    mk("path", { class: "twig grow", pathLength: 1, style: `animation-delay:${.95 + k * .015}s`, d: `M${P(idea.pos)} L${P(r.base)}` }, gTwigs);
+    const g = mk("g", { class: "leaf " + r.status, "data-id": r.id, tabindex: 0, role: "button",
+      "aria-label": `${r.title}, ${r.type.toLowerCase()}${r.author ? ", " + r.author : ""}` }, gLeaves);
+    mk("circle", { class: "hit", cx: r.mid[0], cy: r.mid[1], r: 17 }, g);
+    const inner = mk("g", { transform: `translate(${P(r.base)}) rotate(${r.ang.toFixed(1)})` }, g);
+    mk("path", { class: "blade pop", d: "M0,0 C8,-9 22,-9 30,0 C22,9 8,9 0,0 Z", style: `animation-delay:${1.1 + k * .025}s` }, inner);
+    mk("path", { class: "rib", d: "M2,0 L26,0" }, inner);
+    g.addEventListener("click", () => select({ kind: "res", id: r.id }));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select({ kind: "res", id: r.id }); } });
+    g.addEventListener("mouseenter", () => { showTip(g, r); hoverThreads(r); });
+    g.addEventListener("mouseleave", () => { hideTip(); drawThreads(); });
+    g.addEventListener("focus", () => hoverThreads(r));
+    g.addEventListener("blur", () => drawThreads());
+  });
+
+  // Nœuds des idées
+  IDEAS.forEach((idea, k) => {
+    const g = mk("g", { class: "idea-node" + (idea.bud ? " bud" : ""), "data-id": idea.id, tabindex: 0, role: "button", "aria-label": "Idée : " + idea.name }, gIdeas);
+    mk("circle", { class: "hit", cx: idea.pos[0], cy: idea.pos[1], r: 20 }, g);
+    mk("circle", { class: "core fade", cx: idea.pos[0], cy: idea.pos[1], r: idea.bud ? 8 : 9, style: `animation-delay:${.85 + k * .03}s` }, g);
+    const t = mk("text", { class: "idea-label fade", "text-anchor": "middle", style: `animation-delay:${1 + k * .03}s` }, gLabels);
+    idea.lines.forEach(l => mk("tspan", {}, t, l));
+    idea.labelEl = t;
+    g.addEventListener("click", () => select({ kind: "idea", id: idea.id }));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select({ kind: "idea", id: idea.id }); } });
+  });
+}
+
+/* ================= Placement des étiquettes ================= */
+// Obstacles : points le long des feuilles, des rameaux et des branches ; chaque étiquette choisit la position la plus dégagée.
+let OBST = null;
+function obstacles() {
+  if (OBST) return OBST;
+  const pts = [];
+  const seg = (a, b, n) => { for (let i = 0; i <= n; i++) pts.push([a[0] + (b[0] - a[0]) * i / n, a[1] + (b[1] - a[1]) * i / n]); };
+  const quad = (a, c, b, n) => { for (let i = 0; i <= n; i++) { const t = i / n, u = 1 - t; pts.push([u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]]); } };
+  RES.forEach(r => { seg(r.base, r.tip, 4); seg(ideaById[r.idea].pos, r.base, 4); });
+  IDEAS.forEach(i => { const ax = axisById[i.axis]; quad(ax.hub, at(ax.hub, i.ang - 14, i.dist * .55), i.pos, 10); pts.push(i.pos); });
+  AXES.forEach(ax => { for (let i = 0; i <= 14; i++) { const t = i / 14, u = 1 - t; pts.push([u*u*u*FORK[0] + 3*u*u*t*ax.c1[0] + 3*u*t*t*ax.c2[0] + t*t*t*ax.hub[0], u*u*u*FORK[1] + 3*u*u*t*ax.c1[1] + 3*u*t*t*ax.c2[1] + t*t*t*ax.hub[1]]); } });
+  return OBST = pts;
+}
+function placeLabels(size) {
+  const pts = obstacles(), placed = [];
+  const axisBoxes = [...svg.querySelectorAll(".axis-label")].map(t => { try { const b = t.getBBox(); return [b.x, b.y, b.x + b.width, b.y + b.height]; } catch (e) { return null; } }).filter(Boolean);
+  IDEAS.forEach(idea => {
+    const t = idea.labelEl;
+    t.style.fontSize = size + "px";
+    const tsp = [...t.children];
+    let w = 0;
+    tsp.forEach(s => { let l = 0; try { l = s.getComputedTextLength(); } catch (e) {} w = Math.max(w, l || s.textContent.length * size * .5); });
+    const lh = size * 1.08, h = lh * tsp.length, g = size * .75 + 6, [x, y] = idea.pos;
+    const cands = [
+      [x - w / 2, y + g], [x - w / 2, y - g - h], [x + g, y - h / 2], [x - g - w, y - h / 2],
+      [x + g * .6, y + g * .6], [x - g * .6 - w, y + g * .6], [x + g * .6, y - g * .6 - h], [x - g * .6 - w, y - g * .6 - h]
+    ];
+    let best = null, bestCost = Infinity;
+    cands.forEach(([x0, y0], k) => {
+      const x1 = x0 + w, y1 = y0 + h, pad = 2;
+      let cost = k * .3;
+      pts.forEach(p => { if (p[0] > x0 - pad && p[0] < x1 + pad && p[1] > y0 - pad && p[1] < y1 + pad) cost += 1; });
+      placed.concat(axisBoxes).forEach(b => {
+        const ox = Math.min(x1, b[2]) - Math.max(x0, b[0]), oy = Math.min(y1, b[3]) - Math.max(y0, b[1]);
+        if (ox > 0 && oy > 0) cost += 20 + ox * oy / 40;
+      });
+      if (x0 < 4 || x1 > W - 4 || y0 < 4) cost += 30;
+      if (cost < bestCost) { bestCost = cost; best = [x0, y0]; }
+    });
+    placed.push([best[0], best[1], best[0] + w, best[1] + h]);
+    const cx = best[0] + w / 2;
+    tsp.forEach((s, i) => { s.setAttribute("x", cx); s.setAttribute("y", best[1] + lh * (i + .8)); });
+  });
+}
+
+/* ================= Fils rouges ================= */
+function threadPath(a, b) {
+  const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+  const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+  const bend = Math.min(90, len * .3);
+  const c = [mx - dy / len * bend, my + dx / len * bend];
+  return `M${P(a)} Q${P(c)} ${P(b)}`;
+}
+function drawThreads(extra) {
+  const g = document.getElementById("threads");
+  g.innerHTML = "";
+  const pairs = extra || baseThreads();
+  pairs.forEach(([a, b]) => {
+    mk("path", { class: "thread", d: threadPath(a, b) }, g);
+    mk("circle", { class: "thread-dot", cx: b[0], cy: b[1], r: 3.5 }, g);
+  });
+}
+function baseThreads() {
+  const s = state.sel, out = [];
+  if (!s) return out;
+  if (s.kind === "res") {
+    const r = resById[s.id];
+    r.also.forEach(id => out.push([r.mid, ideaById[id].pos]));
+  } else if (s.kind === "idea") {
+    RES.forEach(r => {
+      if (!visible(r)) return;
+      if (r.also.includes(s.id)) out.push([r.mid, ideaById[s.id].pos]);
+      else if (r.idea === s.id) r.also.forEach(id => out.push([r.mid, ideaById[id].pos]));
+    });
+  }
+  return out;
+}
+function hoverThreads(r) {
+  const pairs = baseThreads();
+  r.also.forEach(id => pairs.push([r.mid, ideaById[id].pos]));
+  drawThreads(pairs);
+}
+
+/* ================= Bulle ================= */
+const tip = document.getElementById("tip");
+function showTip(g, r) {
+  if (matchMedia("(hover: none)").matches) return;
+  const b = g.getBoundingClientRect();
+  tip.innerHTML = `<b></b><span></span>`;
+  tip.firstChild.textContent = r.title;
+  tip.lastChild.textContent = [r.type, r.author, r.year].filter(Boolean).join(" · ");
+  tip.hidden = false;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = b.left + b.width / 2 - tw / 2, y = b.top - th - 8;
+  if (y < 8) y = b.bottom + 8;
+  x = Math.max(8, Math.min(innerWidth - tw - 8, x));
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.hidden = true; }
+
+/* ================= État ================= */
+const state = { sel: null, family: "all", q: "", examples: true, view: "tree" };
+const visible = r => (state.family === "all" || FAMILY[r.type] === state.family) && (state.examples || r.status !== "exemple");
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const matches = r => {
+  if (!state.q) return false;
+  const q = norm(state.q);
+  return norm([r.title, r.author, r.type, r.desc, ideaById[r.idea].name].join(" ")).includes(q);
+};
+
+function applyClasses() {
+  const s = state.sel;
+  let onRes = null, onIdeas = null;
+  if (s && s.kind === "idea") {
+    onRes = new Set(RES.filter(r => r.idea === s.id || r.also.includes(s.id)).map(r => r.id));
+    onIdeas = new Set([s.id]);
+    RES.forEach(r => { if (onRes.has(r.id)) { onIdeas.add(r.idea); r.also.forEach(i => onIdeas.add(i)); } });
+  } else if (s && s.kind === "res") {
+    const r = resById[s.id];
+    onRes = new Set([r.id]);
+    onIdeas = new Set([r.idea, ...r.also]);
+  } else if (s && s.kind === "axis") {
+    onIdeas = new Set(IDEAS.filter(i => i.axis === s.id).map(i => i.id));
+    onRes = new Set(RES.filter(r => onIdeas.has(r.idea)).map(r => r.id));
+  }
+  const anyMatch = !!state.q;
+  let nMatch = 0;
+  svg.querySelectorAll(".leaf").forEach(g => {
+    const r = resById[g.dataset.id];
+    const vis = visible(r), m = vis && matches(r);
+    if (m) nMatch++;
+    g.classList.toggle("filtered", !vis);
+    g.classList.toggle("match", m);
+    g.classList.toggle("sel", !!(s && s.kind === "res" && s.id === r.id));
+    g.classList.toggle("dim", vis && ((anyMatch && !m) || (!anyMatch && onRes && !onRes.has(r.id))));
+    g.setAttribute("tabindex", vis ? 0 : -1);
+  });
+  const qn = state.q ? norm(state.q) : "";
+  svg.querySelectorAll(".idea-node").forEach(g => {
+    const id = g.dataset.id, idea = ideaById[id];
+    const ideaMatch = qn && norm(idea.name + " " + idea.who).includes(qn);
+    if (ideaMatch) nMatch++;
+    g.classList.toggle("sel", !!(s && ((s.kind === "idea" && s.id === id) || (s.kind === "res" && resById[s.id].idea === id))));
+    g.classList.toggle("dim", anyMatch ? !ideaMatch && !RES.some(r => r.idea === id && visible(r) && matches(r)) : !!(onIdeas && !onIdeas.has(id)));
+    idea.labelEl.classList.toggle("sel", g.classList.contains("sel"));
+    idea.labelEl.classList.toggle("dim", g.classList.contains("dim"));
+  });
+  svg.querySelectorAll(".root-g").forEach(g => {
+    g.classList.toggle("on", state.family === g.dataset.f);
+    g.classList.toggle("faded", state.family !== "all" && state.family !== g.dataset.f);
+  });
+  document.querySelectorAll("#fam button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === state.family));
+  const st = document.getElementById("status");
+  st.textContent = state.q ? (nMatch ? `${nMatch} résultat${nMatch > 1 ? "s" : ""} pour « ${state.q} », marqués en rouge dans l'arbre.` : `Aucun résultat pour « ${state.q} ».`) : "";
+  drawThreads();
+}
+
+/* ================= Zoom ================= */
+let vb = { x: 0, y: 0, w: W, h: H }, anim = 0;
+function bboxOf(points, pad) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  points.forEach(p => { x0 = Math.min(x0, p[0]); y0 = Math.min(y0, p[1]); x1 = Math.max(x1, p[0]); y1 = Math.max(y1, p[1]); });
+  x0 -= pad; y0 -= pad; x1 += pad; y1 += pad;
+  let w = Math.max(x1 - x0, 380), h = Math.max(y1 - y0, 380 * H / W);
+  if (w / h > W / H) h = w * H / W; else w = h * W / H;
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  return { x: cx - w / 2, y: cy - h / 2, w, h };
+}
+function targetFor(s) {
+  if (!s) return { x: 0, y: 0, w: W, h: H };
+  if (s.kind === "axis") {
+    const ax = axisById[s.id], pts = [ax.hub];
+    IDEAS.filter(i => i.axis === s.id).forEach(i => { pts.push(i.pos); RES.filter(r => r.idea === i.id).forEach(r => pts.push(r.tip)); });
+    return bboxOf(pts, 60);
+  }
+  const ideaId = s.kind === "idea" ? s.id : resById[s.id].idea;
+  const idea = ideaById[ideaId], pts = [idea.pos, axisById[idea.axis].hub];
+  RES.filter(r => r.idea === ideaId).forEach(r => pts.push(r.tip, r.base));
+  return bboxOf(pts, 80);
+}
+function zoomTo(t) {
+  cancelAnimationFrame(anim);
+  const from = { ...vb }, reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dur = reduce ? 0 : 650, t0 = performance.now();
+  const ease = x => 1 - Math.pow(1 - x, 3);
+  const step = now => {
+    const k = dur ? Math.min(1, (now - t0) / dur) : 1, e = ease(k);
+    vb = { x: from.x + (t.x - from.x) * e, y: from.y + (t.y - from.y) * e, w: from.w + (t.w - from.w) * e, h: from.h + (t.h - from.h) * e };
+    svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+    updateScale();
+    if (k < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+  document.getElementById("zoomOut").hidden = t.w >= W;
+  document.getElementById("hint").hidden = t.w < W;
+}
+function updateScale() {
+  const ppu = svg.clientWidth / vb.w;
+  svg.classList.toggle("tiny", ppu * 17 < 10.5);
+  svg.querySelectorAll(".axis-label").forEach(t => t.style.fontSize = Math.min(36, 26 / ppu) + "px");
+  placeLabels(Math.min(17, 15.5 / ppu));
+}
+addEventListener("resize", updateScale);
+
+/* ================= Panneau ================= */
+const panel = document.getElementById("panel");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const leafGlyph = st => `<svg class="glyph" viewBox="0 0 34 20" aria-hidden="true"><path d="M2,10 C10,1 24,1 32,10 C24,19 10,19 2,10 Z" style="${
+  st === "fonds" ? "fill:var(--green);stroke:var(--green-d)" : st === "suggestion" ? "fill:var(--paper);stroke:var(--green);stroke-width:2" : "fill:var(--leaf-ex);stroke:var(--leaf-ex-line);stroke-dasharray:3 2"}"/></svg>`;
+function resItem(r) {
+  return `<li><button type="button" data-res="${r.id}">${leafGlyph(r.status)}<span><span class="t">${esc(r.title)}</span><span class="m">${esc([r.type, r.author, r.year].filter(Boolean).join(" · "))}${r.status !== "fonds" ? " · " + STATUS[r.status].toLowerCase() : ""}</span></span></button></li>`;
+}
+function renderPanel() {
+  const s = state.sel;
+  let h = "";
+  if (!s) {
+    const nF = RES.filter(r => r.status === "fonds").length;
+    h = `<div class="eyebrow">Lire l'arbre</div>
+      <h2>Du tronc aux feuilles</h2>
+      <p>Le tronc porte la devise d'Al Maydan. Il se partage en trois branches, une par axe : spirituel, intellectuel, culturel.</p>
+      <p>Chaque rameau est une grande idée. Ses feuilles sont les ressources de la bibliothèque qui la nourrissent. Les racines rassemblent les familles de ressources : touchez-en une pour ne garder que ce qui se lit, se regarde ou se rencontre.</p>
+      <ul class="legend">
+        <li>${leafGlyph("fonds")}<span>Ressource du fonds (${nF})</span></li>
+        <li>${leafGlyph("suggestion")}<span>Suggestion à relire</span></li>
+        <li>${leafGlyph("exemple")}<span>Exemple fictif</span></li>
+        <li><svg class="glyph" viewBox="0 0 34 20" aria-hidden="true"><path d="M2,15 Q17,0 32,15" style="fill:none;stroke:var(--red);stroke-width:2;stroke-dasharray:5 4"/></svg><span>Fil rouge : la ressource touche aussi une autre idée</span></li>
+        <li><svg class="glyph" viewBox="0 0 34 20" aria-hidden="true"><circle cx="17" cy="10" r="7" style="fill:var(--paper);stroke:var(--green);stroke-width:2;stroke-dasharray:3 3"/></svg><span>Bourgeon : une idée qui attend ses ressources</span></li>
+      </ul>
+      <h3>Les trois branches</h3>
+      <ul class="axis-ideas">${AXES.map(a => `<li><button type="button" data-axis="${a.id}"><span>${a.name}</span><span>${IDEAS.filter(i => i.axis === a.id).length} idées</span></button></li>`).join("")}</ul>`;
+  } else if (s.kind === "axis") {
+    const ax = axisById[s.id];
+    h = `<button class="back" type="button" data-back="">← Tout l'arbre</button>
+      <div class="eyebrow">Branche maîtresse</div>
+      <h2>${ax.name}</h2><p>${esc(ax.desc)}</p>
+      <h3>Les idées de cette branche</h3>
+      <ul class="axis-ideas">${IDEAS.filter(i => i.axis === ax.id).map(i => {
+        const n = RES.filter(r => r.idea === i.id && visible(r)).length;
+        return `<li><button type="button" data-idea="${i.id}"><span>${esc(i.name)}</span><span>${i.bud ? "bourgeon" : n + " ressource" + (n > 1 ? "s" : "")}</span></button></li>`; }).join("")}</ul>`;
+  } else if (s.kind === "idea") {
+    const idea = ideaById[s.id], ax = axisById[idea.axis];
+    const own = RES.filter(r => r.idea === idea.id && visible(r));
+    const linked = RES.filter(r => r.also.includes(idea.id) && visible(r));
+    const nb = new Set();
+    RES.forEach(r => { if (r.idea === idea.id) r.also.forEach(i => nb.add(i)); if (r.also.includes(idea.id)) nb.add(r.idea); });
+    nb.delete(idea.id);
+    h = `<button class="back" type="button" data-axis="${ax.id}">← Branche ${ax.name.toLowerCase()}</button>
+      <div class="eyebrow">Grande idée · ${ax.name}</div>
+      <h2>${esc(idea.name)}</h2>
+      ${idea.who ? `<p class="thinkers">${esc(idea.who)}</p>` : ""}
+      <p>${esc(idea.desc)}</p>
+      ${idea.bud ? `<div class="bud-box">Vous connaissez un livre, un film, une association qui nourrirait ce rameau ? Il pourra être proposé depuis le formulaire d'Al Maktaba, puis relu avant d'être ajouté.</div>` : ""}
+      ${own.length ? `<h3>Sur ce rameau</h3><ul class="rlist">${own.map(resItem).join("")}</ul>` : ""}
+      ${linked.length ? `<h3>Reliées par un fil rouge</h3><ul class="rlist">${linked.map(resItem).join("")}</ul>` : ""}
+      ${nb.size ? `<h3>Idées voisines</h3><div class="chips">${[...nb].map(i => `<button type="button" class="chip thread-chip" data-idea="${i}">${esc(ideaById[i].name)}</button>`).join("")}</div>` : ""}`;
+  } else {
+    const r = resById[s.id], idea = ideaById[r.idea];
+    const rows = [["Type", r.type], ["Auteur", r.author], ["Année", r.year], ["Langue", r.lang], ["Durée", r.duration]].filter(x => x[1]);
+    h = `<button class="back" type="button" data-idea="${idea.id}">← ${esc(idea.name)}</button>
+      <div class="cover tint-${TINT[r.type]}"><span class="eyebrow">${esc(r.type)}</span><span class="ct">${esc(r.title)}</span><span class="ca">${esc(r.author || r.year)}</span></div>
+      <p><span class="badge ${r.status}">${STATUS[r.status]}</span></p>
+      <p>${esc(r.desc)}</p>
+      <dl class="meta">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+      ${r.url ? `<p><a class="go" href="${esc(r.url)}" target="_blank" rel="noopener">Voir sur ${esc(r.source)} ↗</a></p>`
+        : r.status === "suggestion" ? `<p class="small">Lien à ajouter lors de la relecture.</p>` : `<p class="small">Ressource fictive, sans lien.</p>`}
+      <h3>Rattachée à</h3>
+      <div class="chips"><button type="button" class="chip" data-idea="${idea.id}">${esc(idea.name)}</button>${r.also.map(i => `<button type="button" class="chip thread-chip" data-idea="${i}">${esc(ideaById[i].name)}</button>`).join("")}</div>`;
+  }
+  panel.innerHTML = h;
+}
+function wireLinks(root) {
+  root.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.res) select({ kind: "res", id: b.dataset.res }, true);
+    else if (b.dataset.idea) select({ kind: "idea", id: b.dataset.idea }, true);
+    else if (b.dataset.axis) select({ kind: "axis", id: b.dataset.axis }, true);
+    else if ("back" in b.dataset) select(null, true);
+  });
+}
+wireLinks(panel);
+
+function select(s, fromPanel) {
+  state.sel = s;
+  hideTip();
+  applyClasses();
+  renderPanel();
+  if (state.view === "list" && s) setView("tree");
+  zoomTo(targetFor(s));
+  if (fromPanel) panel.querySelector("button, a")?.focus({ preventScroll: true });
+  if (s && innerWidth <= 980 && !fromPanel) {
+    // sur téléphone, le panneau est sous l'arbre : on garde l'arbre visible, le panneau suit
+  }
+}
+
+/* ================= Vue liste ================= */
+const listView = document.getElementById("listView");
+function renderList() {
+  listView.innerHTML = AXES.map(ax => `<section class="list-axis"><h2>${ax.name}</h2><p>${esc(ax.desc)}</p><div class="list-ideas">${
+    IDEAS.filter(i => i.axis === ax.id).map(i => {
+      const rs = RES.filter(r => r.idea === i.id && visible(r) && (!state.q || matches(r)));
+      return `<div class="list-idea"><h3><button type="button" data-idea="${i.id}">${esc(i.name)}</button></h3>${
+        rs.length ? `<ul class="rlist">${rs.map(resItem).join("")}</ul>` : `<p class="small">${i.bud ? "Bourgeon : aucune ressource pour l'instant." : "Aucune ressource avec ces filtres."}</p>`}</div>`;
+    }).join("")}</div></section>`).join("");
+}
+wireLinks(listView);
+function setView(v) {
+  state.view = v;
+  document.getElementById("stage").hidden = v !== "tree";
+  listView.hidden = v !== "list";
+  document.querySelectorAll("#viewseg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+  if (v === "list") renderList(); else updateScale();
+}
+
+/* ================= Contrôles ================= */
+function setFamily(f) {
+  state.family = f;
+  applyClasses(); renderPanel();
+  if (state.view === "list") renderList();
+}
+document.querySelectorAll("#fam button").forEach(b => b.addEventListener("click", () => setFamily(b.dataset.f)));
+document.querySelectorAll("#viewseg button").forEach(b => b.addEventListener("click", () => setView(b.dataset.v)));
+document.getElementById("ex").addEventListener("change", e => {
+  state.examples = e.target.checked;
+  applyClasses(); renderPanel();
+  if (state.view === "list") renderList();
+});
+document.getElementById("q").addEventListener("input", e => {
+  state.q = e.target.value.trim();
+  applyClasses();
+  if (state.view === "list") renderList();
+});
+document.getElementById("zoomOut").addEventListener("click", () => select(null));
+svg.addEventListener("click", e => {
+  if (e.target === svg && state.sel) select(null);
+});
+addEventListener("keydown", e => { if (e.key === "Escape" && state.sel) select(null); });
+
+/* ================= Démarrage ================= */
+document.getElementById("counts").innerHTML = `
+  <div><b>${IDEAS.length}</b>idées</div>
+  <div><b>${RES.filter(r => r.status === "fonds").length}</b>ressources du fonds</div>
+  <div><b>${RES.filter(r => r.status === "suggestion").length}</b>suggestions</div>`;
+build();
+const h0 = location.hash.slice(1);
+let start = null;
+if (axisById[h0]) start = { kind: "axis", id: h0 };
+else if (ideaById[h0]) start = { kind: "idea", id: h0 };
+else if (resById[h0]) start = { kind: "res", id: h0 };
+state.sel = start;
+applyClasses(); renderPanel();
+if (start) { vb = targetFor(start); svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); document.getElementById("zoomOut").hidden = false; document.getElementById("hint").hidden = true; }
+updateScale();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateScale);
+</script>
